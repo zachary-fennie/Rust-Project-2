@@ -2,10 +2,12 @@ use csv::ReaderBuilder; //for loading from csv
 use rusqlite::{params, Connection, Result}; 
 use std::error::Error;
 use std::fs::File; //for loading csv //for capturing errors from loading
-                                     // Here we will have a function for each of the commands
+
+// Command Line Functions:
 
 // Create a table
-pub fn create_table(conn: &Connection, table_name: &str) -> Result<()> {
+pub fn create(conn: &Connection, table_name: &str) -> Result<()> {
+    """Create a table in the destination database"""
     let create_query = format!(
         "CREATE TABLE IF NOT EXISTS {} (
             id INTEGER PRIMARY KEY,
@@ -16,11 +18,12 @@ pub fn create_table(conn: &Connection, table_name: &str) -> Result<()> {
     );
     conn.execute(&create_query, [])?;
     println!("Table '{}' created successfully.", table_name);
-    Ok(()) //returns nothing except an error if it occurs
+    Ok(()) //returns an error if it occurs
 }
 
 //Read
-pub fn query_exec(conn: &Connection, query_string: &str) -> Result<()> {
+pub fn query(conn: &Connection, query_string: &str) -> Result<()> {
+    """Not sure"""
     // Prepare the query and iterate over the rows returned
     let mut stmt = conn.prepare(query_string)?;
 
@@ -43,7 +46,8 @@ pub fn query_exec(conn: &Connection, query_string: &str) -> Result<()> {
 }
 
 //delete
-pub fn drop_table(conn: &Connection, table_name: &str) -> Result<()> {
+pub fn drop(conn: &Connection, table_name: &str) -> Result<()> {
+    """Delete table, if it exists"""
     let drop_query = format!("DROP TABLE IF EXISTS {}", table_name);
     conn.execute(&drop_query, [])?;
     println!("Table '{}' dropped successfully.", table_name);
@@ -51,11 +55,12 @@ pub fn drop_table(conn: &Connection, table_name: &str) -> Result<()> {
 }
 
 //load data from a file path to a table
-pub fn load_data_from_csv(
+pub fn load(
     conn: &Connection,
     table_name: &str,
     file_path: &str,
 ) -> Result<(), Box<dyn Error>> { //Box<dyn Error> is a trait object that can represent any error type
+    """Read in data from a csv into a table"""
     let file = File::open(file_path)?;
     let mut rdr = ReaderBuilder::new().from_reader(file);
 
