@@ -1,6 +1,6 @@
 [![CI_CD](https://github.com/zachary-fennie/Rust-Project-2/actions/workflows/CI_CD.yml/badge.svg)](https://github.com/zachary-fennie/Rust-Project-2/actions/workflows/CI_CD.yml)
 
-# Rust Project Template with functional CI/CD, devcontainer, dockerfile
+# Rust Command Line Tool
 ## Part 1 of a three part project, the Rust Command Line Tool will package a simple command line tool using Rust, provide a user guide for installation and usage, and set up a Continuous Integration/Continuous Deployment (CI/CD) pipeline that produces a Rust binary as an artifact.
 
 
