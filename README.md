@@ -8,7 +8,7 @@
 ![diagram-export-10-15-2024-10_40_57-PM](https://github.com/user-attachments/assets/c176c501-b37e-4bc4-88b2-f047fdc31f62)
 
 ## Structure Python CLT
-The `python_library` directory contains `transform_load.py` to transform and load local raw data from a `.csv` to a SQLite database, and `crud_query.py` to perform simple SQL operations. The files serve as a template to be customized for your own data project, and `main.py` is used for testing of the complete operations prior to conversion to a command line tool.
+The `python_library` directory contains `my_tool.py` which contains all the necessary functions including `load` to transform and load local raw data from a `.csv` to a SQLite database, and `crud_query.py` to perform simple SQL operations. The files serve as a template to be customized for your own data project, and `main.py` is used for testing of the complete operations prior to conversion to a command line tool.
 
 ## Successful SQL Operations
 <img width="1071" alt="Screenshot 2024-10-20 at 8 30 17 PM" src="https://github.com/user-attachments/assets/165c22af-3ddb-4b20-b66e-7adcd54a13a3">
