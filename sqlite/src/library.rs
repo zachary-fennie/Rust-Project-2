@@ -1,86 +1,142 @@
-use csv::ReaderBuilder; //for loading from csv
-use rusqlite::{params, Connection, Result}; 
+use rusqlite::{params, Connection, Result};
 use std::error::Error;
-use std::fs::File; //for loading csv //for capturing errors from loading
+use std::fs::File;
+use csv::ReaderBuilder;
 
-// Command Line Functions:
+pub fn load(dataset: &str) -> Result<&'static str, Box<dyn Error>> {
+    println!("Transforming and loading data...");
+    println!("Current directory: {:?}", std::env::current_dir());
 
-// Create a table
-pub fn create(conn: &Connection, table_name: &str) -> Result<()> {
-    """Create a table in the destination database"""
-    let create_query = format!(
-        "CREATE TABLE IF NOT EXISTS {} (
+    // Open the CSV file
+    let file = File::open(dataset)?;
+    
+    // Create a CSV reader from the file
+    let mut reader = ReaderBuilder::new()
+        .has_headers(true)
+        .from_reader(file);
+
+    let conn = Connection::open("users.db")?;
+    conn.execute("DROP TABLE IF EXISTS users", [])?;
+    conn.execute(
+        "CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY,
-            name TEXT NOT NULL,
-            age INTEGER NOT NULL
+            name TEXT,
+            email TEXT,
+            age INTEGER
         )",
-        table_name
-    );
-    conn.execute(&create_query, [])?;
-    println!("Table '{}' created successfully.", table_name);
-    Ok(()) //returns an error if it occurs
+        [],
+    )?;
+
+    // Insert data into database
+    for result in reader.records() {
+        let record = result.map_err(|e| {
+            eprintln!("Error reading record: {}", e);
+            Box::new(e) as Box<dyn Error>
+        })?;
+        
+        conn.execute(
+            "INSERT INTO users (id, name, email, age) VALUES (?1, ?2, ?3, ?4)",
+            params![
+                record[0].parse::<i32>()?,
+                record[1].to_string(),
+                record[2].to_string(),
+                record[3].parse::<i32>()?
+            ],
+        )?;
+    }
+
+    Ok("users.db")
 }
 
-//Read
-pub fn query(conn: &Connection, query_string: &str) -> Result<()> {
-    """Not sure"""
-    // Prepare the query and iterate over the rows returned
-    let mut stmt = conn.prepare(query_string)?;
 
-    // Use query_map to handle multiple rows
+pub fn create() -> Result<&'static str> {
+    let conn = Connection::open("users.db")?;
+    conn.execute(
+        "CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY,
+            name TEXT,
+            email TEXT,
+            age INTEGER
+        )",
+        [],
+    )?;
+    Ok("Create Success")
+}
+
+pub fn read() -> Result<&'static str> {
+    let conn = Connection::open("users.db")?;
+    println!("Top 5 rows of the table:");
+    let mut stmt = conn.prepare("SELECT * FROM users LIMIT 5;")?;
     let rows = stmt.query_map([], |row| {
-        // Assuming the `users` table has an `id` and `name` column
-        let id: i32 = row.get(0)?;
-        let name: String = row.get(1)?;
-        let age: i32 = row.get(2)?;
-        Ok((id, name,age))
+        Ok((
+            row.get::<_, i32>(0)?,
+            row.get::<_, String>(1)?,
+            row.get::<_, String>(2)?,
+            row.get::<_, i32>(3)?,
+        ))
     })?;
 
-    // Iterate over the rows and print the results
     for row in rows {
-        let (id, name,age) = row?;
-        println!("ID: {}, Name: {}, Age: {}", id, name, age);
+        println!("{:?}", row?);
     }
-
-    Ok(())
+    Ok("Read Success")
 }
 
-//delete
-pub fn drop(conn: &Connection, table_name: &str) -> Result<()> {
-    """Delete table, if it exists"""
-    let drop_query = format!("DROP TABLE IF EXISTS {}", table_name);
-    conn.execute(&drop_query, [])?;
-    println!("Table '{}' dropped successfully.", table_name);
-    Ok(())
+pub fn query() -> Result<&'static str> {
+    let conn = Connection::open("users.db")?;
+    println!("Querying data...");
+    let mut stmt = conn.prepare("SELECT * FROM users WHERE name = 'Zachary Carter';")?;
+    let rows = stmt.query_map([], |row| {
+        Ok((
+            row.get::<_, i32>(0)?,
+            row.get::<_, String>(1)?,
+            row.get::<_, String>(2)?,
+            row.get::<_, i32>(3)?,
+        ))
+    })?;
+
+    for row in rows {
+        println!("{:?}", row?);
+    }
+    Ok("Query Success")
 }
 
-//load data from a file path to a table
-pub fn load(
-    conn: &Connection,
-    table_name: &str,
-    file_path: &str,
-) -> Result<(), Box<dyn Error>> { //Box<dyn Error> is a trait object that can represent any error type
-    """Read in data from a csv into a table"""
-    let file = File::open(file_path)?;
-    let mut rdr = ReaderBuilder::new().from_reader(file);
+pub fn update() -> Result<&'static str> {
+    let conn = Connection::open("users.db")?;
+    conn.execute(
+        "UPDATE users SET name = 'Zachary Carter' WHERE name = 'Zachar Carter'",
+        [],
+    )?;
+    Ok("Update Success")
+}
 
-    let insert_query = format!(
-        "INSERT INTO {} (id, name, age) VALUES (?, ?, ?)",
-        table_name
-    );
-    //this is a loop that expects a specific schema, you will need to change this if you have a different schema
-    for result in rdr.records() {
-        let record = result?;
-        let id: i32 = record[0].parse()?; //.parse() is a method that converts a string into a number
-        let name: &str = &record[1];
-        let age: i32 = record[2].parse()?;
+pub fn delete() -> Result<&'static str> {
+    let conn = Connection::open("users.db")?;
+    conn.execute("DELETE FROM users WHERE name = 'Zachary Carter'", [])?;
+    Ok("Delete Success")
+}
 
-        conn.execute(&insert_query, params![id, name, age])?;
+pub fn full_crudquery() -> Result<Vec<&'static str>> {
+    let mut results = Vec::new();
+    results.push(create()?);
+    results.push(read()?);
+    results.push(query()?);
+    results.push(update()?);
+    results.push(delete()?);
+    Ok(results)
+}
+
+pub fn main() -> Result<(), Box<dyn Error>> {
+    let dataset = "sample_data.csv";
+
+    // Load data into the database
+    load(dataset)?;
+
+    // Run full CRUD operations
+    let results = full_crudquery()?;
+    for result in results {
+        println!("{}", result);
     }
 
-    println!(
-        "Data loaded successfully from '{}' into table '{}'.",
-        file_path, table_name
-    );
     Ok(())
 }
