@@ -8,11 +8,17 @@ import sqlite3
 
 def create():
     """Create function for CRUD"""
-    conn = sqlite3.connect("icu.db")
+    conn = sqlite3.connect("users.db")
     cursor = conn.cursor()
     # create execution
     cursor.execute(
-        "INSERT INTO icuDB (MMSA, total_percent_at_risk, high_risk_per_ICU_bed, high_risk_per_hospital, icu_beds, hospitals, total_at_risk) VALUES('Duham, NC','50%',1947,43787,360,14,667189)"
+        """
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY,
+            name TEXT,
+            email TEXT,
+            age INTEGER
+        )"""
     )
     conn.commit()
     conn.close()
@@ -21,11 +27,11 @@ def create():
 
 def read():
     """Read function for CRUD"""
-    conn = sqlite3.connect("icu.db")
+    conn = sqlite3.connect("users.db")
     cursor = conn.cursor()
     # read execution
     print("Top 5 rows of the table:")
-    cursor.execute("SELECT * FROM icuDB LIMIT 5;")
+    cursor.execute("SELECT * FROM users LIMIT 5;")
     # Fetch the results
     rows = cursor.fetchall()  # Fetch results here
     print(rows)  # Print the fetched rows to see the output
@@ -35,10 +41,10 @@ def read():
 
 def query():
     """Query the database for the test case"""
-    conn = sqlite3.connect("icu.db")
+    conn = sqlite3.connect("users.db")
     cursor = conn.cursor()
     print("Querying data...")
-    cursor.execute("SELECT * FROM icuDB WHERE MMSA = 'Duham, NC';")
+    cursor.execute("SELECT * FROM users WHERE name = 'Zachar Carter';")
     print(cursor.fetchall())
     conn.close()
     return "Query Success"
@@ -46,10 +52,12 @@ def query():
 
 def update():
     """Update function for CRUD"""
-    conn = sqlite3.connect("icu.db")
+    conn = sqlite3.connect("users.db")
     cursor = conn.cursor()
     # update execution
-    cursor.execute("UPDATE icuDB SET MMSA = 'Durham, NC' WHERE MMSA = 'Duham, NC'")
+    cursor.execute(
+        "UPDATE users SET name = 'Zachary Carter' WHERE name = 'Zachar Carter'"
+    )
     conn.commit()
     conn.close()
     return "Update Success"
@@ -57,10 +65,10 @@ def update():
 
 def delete():
     """Delete function for CRUD"""
-    conn = sqlite3.connect("icu.db")
+    conn = sqlite3.connect("users.db")
     cursor = conn.cursor()
     # delete execution
-    cursor.execute("DELETE FROM icuDB WHERE MMSA = 'Durham, NC'")
+    cursor.execute("DELETE FROM users WHERE name = 'Zachary Carter'")
     conn.close()
     return "Delete Success"
 
