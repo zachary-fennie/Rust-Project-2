@@ -4,7 +4,7 @@
 ## This project satisfies three assignments. First, a python script that connects to a SQLite database is packaged into a command line tool. Next, the Python command line tool is translated to Rust. Successful performance of the Rust translation will also satisfy all project 2 requirements. Additional materials include a user guide for installation and  a Continuous Integration/Continuous Deployment (CI/CD) pipeline that produces a Rust binary as an artifact. Github Copilot was used to assist with Rust errors as I lack the experience necessary to efficiently solve them. 
 
 
-![image](https://github.com/user-attachments/assets/72b9bee1-8783-412d-bb75-232fb2d6cf57)
+<img width="463" alt="Screenshot 2024-11-03 at 7 55 33 PM" src="https://github.com/user-attachments/assets/27361169-78fa-4bfa-8f6d-6a3187c8901f">
 
 
 ## Structure Python CLT
